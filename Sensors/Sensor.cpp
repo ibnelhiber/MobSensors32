@@ -1,0 +1,55 @@
+#include "Sensor.h"
+#include <iostream>
+
+Sensor::Sensor(std::shared_ptr<I2CBus> bus) : 
+    m_i2cBus{bus},
+    ReadSensor{[this](){ReadSensorI2C_();}}
+{
+}
+
+Sensor::Sensor(std::unique_ptr<UARTBus> bus) :
+    m_uartBus{std::move(bus)},
+    ReadSensor{[this](){ReadSensorUART_();}}
+{
+}
+
+Sensor::~Sensor()
+{
+	StopPolling();
+}
+
+double Sensor::SetupData(std::array<uint8_t,9> array)
+{
+	double currentDistance =  (array[m_indexes.highIndex] << 8 
+        | array[m_indexes.lowIndex])/ 100.00;
+    return currentDistance;
+}
+
+double Sensor::get_distance()
+{
+    return m_distance;
+}
+
+void Sensor::PollSensor()
+{
+	printf("Starting to poll sensor");
+    if(!m_pollingTask)
+    {
+        m_pollingTask = std::make_unique<Task>(shared_from_this());
+        m_pollingTask->StartTask();
+    }
+    else
+    {
+        std::cout << "This sensor is already polling!" << std::endl;
+    }
+}
+
+void Sensor::StopPolling()
+{
+    if (m_pollingTask) 
+	{
+		printf("Stopped Polling Sensor");
+        m_pollingTask->EndTask();
+		m_pollingTask = nullptr;
+    }
+}
