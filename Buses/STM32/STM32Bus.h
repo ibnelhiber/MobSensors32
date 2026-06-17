@@ -2,6 +2,7 @@
 #define STM32_BUS_H_
 
 #include <unordered_set>
+#include <unordered_map>
 #include <functional>
 #include "Config.h"
 
@@ -42,6 +43,7 @@ protected:
 
     bool CheckPinsAvailability(GPIOPin pinOne, GPIOPin pinTwo);
     virtual bool CheckPortAvailability() = 0;
+    void EnableGPIOPort();
 
 
 public:

@@ -40,6 +40,8 @@ void TFLuna::ReadSensorI2C_()
 	m_i2cBus->ReadByte(m_i2cAddress, packet);
 
 	m_distance = SetupData(packet);
+
+	printf("Distance: %f\n", m_distance);
 }
 
 void TFLuna::ReadSensorUART_()
