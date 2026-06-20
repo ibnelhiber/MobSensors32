@@ -1,6 +1,7 @@
 #include "STM32Bus.h"
 #include <iostream>
 
+std::unordered_set<GPIOPin, GPIOPinHash> STM32Bus::m_usedPins{};
 
 STM32Bus::STM32Bus(GPIOPin pinOne, GPIOPin pinTwo)
 {
@@ -21,11 +22,11 @@ void STM32Bus::EnableGPIOPort()
 {
     if(m_pinOne.gpioPort == m_pinTwo.gpioPort)
     {
-        enable_clock_map.at(m_pinOne.gpioPort);
+        enable_gpio_port_clock_map.at(m_pinOne.gpioPort)();
     }
     else
     {
-        enable_clock_map.at(m_pinTwo.gpioPort);
+        enable_gpio_port_clock_map.at(m_pinTwo.gpioPort)();
     }
 }
 
@@ -44,7 +45,7 @@ bool STM32Bus::CheckPinsAvailability(GPIOPin pinOne, GPIOPin pinTwo)
     }
     else
     {
-        std::cout << "pinOne pin: " << pinOne << " not available!" << std::endl;
+        std::cout << "Pin one not available!" << std::endl;
     }
     
     if(m_usedPins.find(pinTwo) == m_usedPins.end())
@@ -53,7 +54,7 @@ bool STM32Bus::CheckPinsAvailability(GPIOPin pinOne, GPIOPin pinTwo)
     }
     else
     {
-        std::cout << "pinTwo pin: " << pinTwo << " not available!" << std::endl;
+        std::cout << "Pin two not available!" << std::endl;
     }
 
     if((m_usedPinsAmount + 2) != static_cast<int>(m_usedPins.size()))

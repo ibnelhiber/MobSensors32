@@ -1,7 +1,7 @@
 #ifndef STM32I2CBus_H_
 #define STM32I2CBus_H_
 
-#include "II2CBus.h"
+#include "Buses/II2CBus.h"
 #include "STM32Bus.h"
 #include <unordered_map>
 #include <memory>
@@ -23,7 +23,7 @@ private:
 
 public:
     STM32I2CBus(GPIOPin sda, GPIOPin scl);
-    bool ReadByte(uint8_t address const, std::array<uint8_t, 9>& packet,
+    bool ReadByte(const uint8_t address, std::array<uint8_t, 9>& packet,
             std::optional<uint8_t> registerAddress) const override;
 
 };

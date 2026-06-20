@@ -1,24 +1,44 @@
 #pragma once
 
-/*
-* Possible configurations are:
-* USE_ESP32,
-* USE_STM32F7
-* USE_STM32F4
-*
-*/
 
-
-#if defined(USE_ESP32)
+#if defined(ESP_PLATFORM)
     #include "driver/gpio.h"
     #include "freertos/freertos.h"
     #include "ESP32/ESP32I2CBus.h"
     using IOPin = gpio_num_t;
-#elif defined(USE_STM32F7)
+#elif defined(STM32F767xx)
     #include "stm32f7xx_hal.h"
+    #include "FreeRTOS.h"
+    #include "task.h"
+
+    #include <memory>
     #include <functional>
     #include <unordered_map>
+
+    struct GPIOPin
+    {
+    GPIO_TypeDef* gpioPort;
+    uint16_t pin;
+
+    bool operator==(const GPIOPin&) const = default;
+    };
+    using IOPin = GPIOPin;
+
+    struct GPIOPinHash
+    {
+        std::size_t operator()(const GPIOPin& gpioPin) const
+        {
+            // std::hash is callable. Argument is what to create a hash for
+            std::size_t portHashVal = std::hash<GPIO_TypeDef*>{}(gpioPin.gpioPort);
+            std::size_t pinHashVal = std::hash<uint16_t>{}(gpioPin.pin);
+
+            //Avoid collisions by not making flipped values equivalent
+            return portHashVal ^ (pinHashVal << 1);
+        }
+    };
+
     #define I2CMAX 4
+    
     const std::unordered_map<GPIO_TypeDef*, std::function<void()>> enable_gpio_port_clock_map =
     {
         { GPIOA, [](){ __HAL_RCC_GPIOA_CLK_ENABLE(); } },
@@ -49,12 +69,16 @@
         { I2C3, [](){ __HAL_RCC_I2C3_CLK_ENABLE(); } }
     };
 
-    void SetI2CPortTimingParamaters(std::unique_ptr<I2C_HandleTypeDef>& i2cPort)
+    inline void SetI2CPortTimingParamaters(std::unique_ptr<I2C_HandleTypeDef>& i2cPort)
     {
-        m_i2cPort->Init.Timing = 0x20404768;
+        i2cPort->Init.Timing = 0x20404768;
     }
 #elif defined(USE_STM32F4)
     #include "stm32f4xx_hal.h"
+    extern "C" {
+    #include "FreeRTOS.h"
+    #include "task.h"
+    }
     #define I2CMAX 3
     #include <functional>
     #include <unordered_map>
@@ -88,7 +112,7 @@
         { I2C3, [](){ __HAL_RCC_I2C3_CLK_ENABLE(); } }
     };
 
-    void SetI2CPortTimingParamaters(std::unique_ptr<I2C_HandleTypeDef>& i2cPort)
+    inline void SetI2CPortTimingParamaters(std::unique_ptr<I2C_HandleTypeDef>& i2cPort)
     {
         i2cPort->Init.ClockSpeed = 100000;
         i2cPort->Init.DutyCycle = I2C_DUTYCYCLE_2;
