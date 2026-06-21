@@ -3,13 +3,13 @@
 
 #include <memory>
 #include <cstdint>
-#include "Config.h"
+#include "Buses/Adaptation/Adapt.h"
 #include "II2CBus.h"
 
 class I2CBus
 {
 private:
-    std::shared_ptr<II2CBus> implementation;
+    std::shared_ptr<II2CBus> m_implementation;
 
 public:
     I2CBus(IOPin sda, IOPin scl);

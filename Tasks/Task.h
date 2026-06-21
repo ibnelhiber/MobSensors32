@@ -3,7 +3,7 @@
 #ifndef MAIN_TASKS_TASK_H_
 #define MAIN_TASKS_TASK_H_
 
-#include "Config.h"
+#include "Buses/Adaptation/Adapt.h"
 #include <memory>
 
 class Sensor;

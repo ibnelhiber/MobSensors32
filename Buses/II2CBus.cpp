@@ -1,7 +1,6 @@
 #include "II2CBus.h"
 
 
-
 II2CBus::II2CBus()
 {
 }

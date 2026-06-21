@@ -4,7 +4,6 @@
 #if defined(ESP_PLATFORM)
     #include "driver/gpio.h"
     #include "freertos/freertos.h"
-    #include "ESP32/ESP32I2CBus.h"
     using IOPin = gpio_num_t;
 #elif defined(STM32F767xx)
     #include "stm32f7xx_hal.h"
@@ -72,50 +71,6 @@
     inline void SetI2CPortTimingParamaters(std::unique_ptr<I2C_HandleTypeDef>& i2cPort)
     {
         i2cPort->Init.Timing = 0x20404768;
-    }
-#elif defined(USE_STM32F4)
-    #include "stm32f4xx_hal.h"
-    extern "C" {
-    #include "FreeRTOS.h"
-    #include "task.h"
-    }
-    #define I2CMAX 3
-    #include <functional>
-    #include <unordered_map>
-    #include <memory>
-    const std::unordered_map<GPIO_TypeDef*, std::function<void()>> enable_gpio_port_clock_map =
-    {
-        { GPIOA, [](){ __HAL_RCC_GPIOA_CLK_ENABLE(); } },
-        { GPIOB, [](){ __HAL_RCC_GPIOB_CLK_ENABLE(); } },
-        { GPIOC, [](){ __HAL_RCC_GPIOC_CLK_ENABLE(); } },
-        { GPIOD, [](){ __HAL_RCC_GPIOD_CLK_ENABLE(); } },
-        { GPIOE, [](){ __HAL_RCC_GPIOE_CLK_ENABLE(); } },
-        { GPIOF, [](){ __HAL_RCC_GPIOF_CLK_ENABLE(); } },
-        { GPIOG, [](){ __HAL_RCC_GPIOG_CLK_ENABLE(); } },
-        { GPIOH, [](){ __HAL_RCC_GPIOH_CLK_ENABLE(); } },
-        { GPIOI, [](){ __HAL_RCC_GPIOI_CLK_ENABLE(); } },
-        { GPIOJ, [](){ __HAL_RCC_GPIOJ_CLK_ENABLE(); } },
-        { GPIOK, [](){ __HAL_RCC_GPIOK_CLK_ENABLE(); } }
-    };
-
-    const std::unordered_map<uint8_t, I2C_TypeDef*> i2c_port_map = 
-    {
-        {1, I2C1},
-        {2, I2C2},
-        {3, I2C3},
-    }
-
-    const std::unordered_map<I2C_TypeDef*, std::function<void()>> enable_i2c_clock_map =
-    {
-        { I2C1, [](){ __HAL_RCC_I2C1_CLK_ENABLE(); } },
-        { I2C2, [](){ __HAL_RCC_I2C2_CLK_ENABLE(); } },
-        { I2C3, [](){ __HAL_RCC_I2C3_CLK_ENABLE(); } }
-    };
-
-    inline void SetI2CPortTimingParamaters(std::unique_ptr<I2C_HandleTypeDef>& i2cPort)
-    {
-        i2cPort->Init.ClockSpeed = 100000;
-        i2cPort->Init.DutyCycle = I2C_DUTYCYCLE_2;
     }
 
 #endif

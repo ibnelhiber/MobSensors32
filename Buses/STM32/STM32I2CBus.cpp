@@ -1,6 +1,6 @@
 #include "STM32I2CBus.h"
 #include <cstdio>
-#include "Config.h"
+#include "Buses/Adaptation/Adapt.h"
 
 std::unordered_set<I2C_TypeDef*> STM32I2CBus::m_usedI2CPorts{};
 

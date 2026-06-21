@@ -4,7 +4,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <functional>
-#include "Config.h"
+#include "Buses/Adaptation/Adapt.h"
 
 class STM32Bus
 {
