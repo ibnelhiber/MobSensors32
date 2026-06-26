@@ -10,7 +10,6 @@ class I2CBus
 {
 private:
     std::shared_ptr<II2CBus> m_implementation;
-
 public:
     I2CBus(IOPin sda, IOPin scl);
     bool CheckBusAvailability(const uint8_t address);

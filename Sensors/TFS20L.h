@@ -12,8 +12,6 @@ private:
     void ReadSensorI2C_() override;
     void ReadSensorUART_()  override;
     static constexpr uint8_t m_i2cAddress = 0x10;
-    static constexpr uint8_t m_registerAddress = 0x00;
-
 public:
     explicit TFS20L(std::shared_ptr<I2CBus> bus);
     explicit TFS20L(std::unique_ptr<UARTBus> bus);

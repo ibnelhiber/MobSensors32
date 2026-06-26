@@ -20,18 +20,8 @@ TFMini::TFMini(std::shared_ptr<I2CBus> bus) : Sensor(bus)
 TFMini::TFMini(std::unique_ptr<UARTBus> bus) : 
 	Sensor(std::move(bus))
 {
-	// m_uartBus = std::move(bus);
-
-	// if(!m_uartBus->CheckBusAvailability())
-	// {
-	// 	printf("UART bus not available!");
-	// }
-	// else
-	// {
-	// 	printf("UART bus available!");
-	// }
-
-	// m_indexes = {3, 2};
+	m_uartBus = std::move(bus);
+	m_indexes = {3, 2};
 }
 
 void TFMini::ReadSensorI2C_()
@@ -45,6 +35,12 @@ void TFMini::ReadSensorI2C_()
 
 void TFMini::ReadSensorUART_()
 {
-	
+	std::array<uint8_t,9> packet{};
+	constexpr uint8_t distance_register_addr = 0x00;
+	m_uartBus->ReadFromRegister(packet, distance_register_addr);
+
+	m_distance = SetupData(packet);
+
+	printf("Distance: %f\n", m_distance);
 }
 

@@ -19,25 +19,15 @@ TFLuna::TFLuna(std::shared_ptr<I2CBus> bus) : Sensor(bus)
 
 TFLuna::TFLuna(std::unique_ptr<UARTBus> bus) : Sensor(std::move(bus))
 {
-	// m_uartBus = std::move(bus);
-
-	// if(!m_uartBus->CheckBusAvailability())
-	// {
-	// 	printf("UART bus not available!");
-	// }
-	// else
-	// {
-	// 	printf("UART bus available!");
-	// }
-
-	// m_indexes = {3, 2};
+	m_uartBus = std::move(bus);
+	m_indexes = {3, 2};
 }
 
 void TFLuna::ReadSensorI2C_()
 {
 	std::array<uint8_t,9> packet{};
-
-	m_i2cBus->ReadByte(m_i2cAddress, packet);
+	uint8_t distance_register_addr = 0x00;
+	m_i2cBus->ReadFromRegister(m_i2cAddress, packet, distance_register_addr);
 
 	m_distance = SetupData(packet);
 
@@ -46,6 +36,12 @@ void TFLuna::ReadSensorI2C_()
 
 void TFLuna::ReadSensorUART_()
 {
+	std::array<uint8_t,9> packet{};
+	constexpr uint8_t distance_register_addr = 0x00;
+	m_uartBus->ReadFromRegister(packet, distance_register_addr);
 
+	m_distance = SetupData(packet);
+
+	printf("Distance: %f\n", m_distance);
 }
 

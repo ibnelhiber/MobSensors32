@@ -6,15 +6,6 @@ UARTBus::UARTBus(IOPin tx, IOPin rx)
 {
 }
 
-bool UARTBus::CheckBusAvailability()
-{
-    if(m_implementation)
-    {
-        return m_implementation->CheckBusAvailability();
-    }
-
-    return false;
-}
 
 bool UARTBus::Read(const uint8_t address, std::vector<uint8_t>& packet)
 {

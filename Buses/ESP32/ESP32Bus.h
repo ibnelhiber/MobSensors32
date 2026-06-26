@@ -17,8 +17,6 @@ protected:
     gpio_num_t m_pinTwo;
 
     bool CheckPinsAvailability(gpio_num_t pinOne, gpio_num_t pinTwo);
-    virtual bool CheckPortAvailability() = 0;
-
 public:
     ESP32Bus(gpio_num_t pinOne, gpio_num_t pinTwo);
 };

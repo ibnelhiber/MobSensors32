@@ -5,7 +5,6 @@ I2CBus::I2CBus(IOPin sda, IOPin scl) : m_implementation{CreateI2CImplementation(
 {}
 
 
-// TO DO: ACTUALLY IMPLEMENT THIS
 bool I2CBus::CheckBusAvailability(const uint8_t address)
 {
     if(m_implementation)
