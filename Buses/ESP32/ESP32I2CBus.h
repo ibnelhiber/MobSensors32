@@ -20,11 +20,13 @@ private:
 
     gpio_num_t get_sda();
     gpio_num_t get_scl();
-
 public:
     ESP32I2CBus(gpio_num_t sda, gpio_num_t scl);
-    bool ReadByte(const uint8_t address, std::array<uint8_t, 9>& packet,
-            std::optional<uint8_t> registerAddress = std::nullopt) const override;
+    bool Read(const uint8_t address, std::vector<uint8_t>& packet) override;
+    bool ReadFromRegister(const uint8_t address, std::vector<uint8_t>& packet,
+    const int registerAddress) override;
+    bool ReadAfterCommand(const uint8_t address, std::vector<uint8_t>& packet, 
+    const std::vector<uint8_t>& command) override;
 
 };
 

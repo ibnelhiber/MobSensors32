@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <optional>
 #include <unordered_set>
+#include <vector>
 
 
 class II2CBus
@@ -18,8 +19,11 @@ protected:
 public:
     II2CBus();
     bool CheckBusAvailability(const uint8_t address);
-    virtual bool ReadByte(const uint8_t address, std::array<uint8_t, 9>& packet,
-        std::optional<uint8_t> registerAddress = std::nullopt) const = 0;
+    virtual bool Read(const uint8_t address, std::vector<uint8_t>& packet);
+    virtual bool ReadFromRegister(const uint8_t address, std::vector<uint8_t>& packet,
+    const int registerAddress);
+    virtual bool ReadAfterCommand(const uint8_t address, std::vector<uint8_t>& packet, 
+    const std::vector<uint8_t>& command);
 };
 
 #endif
