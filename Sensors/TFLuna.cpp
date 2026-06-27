@@ -23,9 +23,17 @@ TFLuna::TFLuna(std::unique_ptr<UARTBus> bus) : Sensor(std::move(bus))
 	m_indexes = {3, 2};
 }
 
+
+double Sensor::SetupData(std::vector<uint8_t> rawDataVector)
+{
+	float currentDistance =  (rawDataVector[m_indexes.highIndex] << 8 
+        | rawDataVector[m_indexes.lowIndex])/ 100.00;
+    return currentDistance;
+}
+
 void TFLuna::ReadSensorI2C_()
 {
-	std::array<uint8_t,9> packet{};
+	std::vector<uint8_t> packet{};
 	uint8_t distance_register_addr = 0x00;
 	m_i2cBus->ReadFromRegister(m_i2cAddress, packet, distance_register_addr);
 
@@ -36,7 +44,7 @@ void TFLuna::ReadSensorI2C_()
 
 void TFLuna::ReadSensorUART_()
 {
-	std::array<uint8_t,9> packet{};
+	std::vector<uint8_t> packet{};
 	constexpr uint8_t distance_register_addr = 0x00;
 	m_uartBus->ReadFromRegister(packet, distance_register_addr);
 

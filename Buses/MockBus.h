@@ -1,24 +1,20 @@
-// #ifndef MOCK_BUS_H_
-// #define MOCK_BUS_H_
+#ifndef MockBus_H_
+#define MockBus_H_
+
+#include <memory>
+#include <cstdint>
+#include <vector>
+
+class MockBus
+{
+public:
+    MockBus();
+    bool Read(std::vector<uint8_t>& packet);
+    bool ReadFromRegister(std::vector<uint8_t>& packet,
+    const int registerAddress);
+    bool ReadAfterCommand(std::vector<uint8_t>& packet, 
+    const std::vector<uint8_t>& command);
+};
 
 
-// #include "Bus.h"
-// #include <optional>
-
-
-
-
-// class MockBus : Bus
-// {
-
-// private:
-//     float m_testVal;
-// public:
-//     MockBus(float testVal);
-//     bool ReadByte_(std::array<uint8_t, 9>& packet);
-
-// };
-
-
-
-// #endif
+#endif

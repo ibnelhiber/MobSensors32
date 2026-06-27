@@ -12,7 +12,7 @@ class UARTBus
 private:
     std::shared_ptr<II2CBus> m_implementation;
 public:
-    UARTBus(gpio_num_t tx, gpio_num_t rx);
+    UARTBus(IOPin tx, IOPin rx);
     bool Read(std::vector<uint8_t>& packet) override;
     bool ReadFromRegister(std::vector<uint8_t>& packet,
     const int registerAddress) override;

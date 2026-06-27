@@ -12,15 +12,13 @@ class STM32I2CBus : public II2CBus, public STM32Bus
 
 private:
     static std::unordered_set<I2C_TypeDef*> m_usedI2CPorts;
-    std::unique_ptr<I2C_HandleTypeDef> m_i2cPort{
-        std::make_unique<I2C_HandleTypeDef>()};
+    I2C_HandleTypeDef m_i2cPort;
     bool CheckPortAvailability() override;
     
     void I2CSetup() override;
 
     GPIOPin get_sda();
     GPIOPin get_scl();
-
 public:
     STM32I2CBus(GPIOPin sda, GPIOPin scl);
     bool Read(const uint8_t address, std::vector<uint8_t>& packet) override;

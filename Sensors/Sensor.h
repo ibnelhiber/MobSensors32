@@ -35,8 +35,6 @@ protected:
     std::shared_ptr<I2CBus> m_i2cBus;
     std::unique_ptr<UARTBus> m_uartBus;
 
-    double SetupData(std::array<uint8_t,9> array);
-
     virtual void ReadSensorI2C_() = 0;
     virtual void ReadSensorUART_() = 0;
 

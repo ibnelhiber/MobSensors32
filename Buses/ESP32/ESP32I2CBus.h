@@ -13,7 +13,7 @@ class ESP32I2CBus : public II2CBus, public ESP32Bus
 
 private:
     inline static std::unordered_set<i2c_port_t> m_usedI2CPorts{};
-    std::unique_ptr<i2c_port_t> m_i2cPort;
+    i2c_port_t m_i2cPort;
     bool CheckPortAvailability() override;
     
     void I2CSetup() override;

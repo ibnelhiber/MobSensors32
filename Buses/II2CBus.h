@@ -18,7 +18,7 @@ protected:
 
 public:
     II2CBus();
-    bool CheckBusAvailability(const uint8_t address);
+    bool CheckAddressAvailability(const uint8_t address);
     virtual bool Read(const uint8_t address, std::vector<uint8_t>& packet);
     virtual bool ReadFromRegister(const uint8_t address, std::vector<uint8_t>& packet,
     const int registerAddress);

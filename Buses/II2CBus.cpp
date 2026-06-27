@@ -6,7 +6,7 @@ II2CBus::II2CBus()
 }
 
 
-bool II2CBus::CheckBusAvailability(const uint8_t address)
+bool II2CBus::CheckAddressAvailability(const uint8_t address)
 {
     if(m_usedAddresses.find(address) == m_usedAddresses.end())
     {

@@ -22,8 +22,8 @@ void ESP32I2CBus::I2CSetup()
     conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
     conf.master.clk_speed = 100000;
 
-    i2c_param_config(*m_i2cPort, &conf);
-    i2c_driver_install(*m_i2cPort, I2C_MODE_MASTER, 0, 0, 0);
+    i2c_param_config(m_i2cPort, &conf);
+    i2c_driver_install(m_i2cPort, I2C_MODE_MASTER, 0, 0, 0);
 }
 
 bool ESP32I2CBus::CheckPortAvailability()
@@ -36,7 +36,7 @@ bool ESP32I2CBus::CheckPortAvailability()
 
         if(m_usedI2CPorts.find(port) == m_usedI2CPorts.end())
         {
-            m_i2cPort = std::make_unique<i2c_port_t>(port);
+            m_i2cPort = port;
             m_usedI2CPorts.insert(port);
             return true;
         }
@@ -55,7 +55,7 @@ bool ESP32I2CBus::Read(const uint8_t address, std::vector<uint8_t>& packet)
     i2c_master_read_byte(cmd, &packet[packet.size() - 1], I2C_MASTER_NACK);
     i2c_master_stop(cmd);
 
-    esp_err_t err = i2c_master_cmd_begin(*m_i2cPort.get(), cmd, pdMS_TO_TICKS(100));
+    esp_err_t err = i2c_master_cmd_begin(m_i2cPort, cmd, pdMS_TO_TICKS(100));
 
     i2c_cmd_link_delete(cmd);
 
@@ -79,7 +79,7 @@ const int registerAddress)
     i2c_master_read_byte(cmd, &packet[packet.size() - 1], I2C_MASTER_NACK);
     i2c_master_stop(cmd);
 
-    esp_err_t err = i2c_master_cmd_begin(*m_i2cPort.get(), cmd, pdMS_TO_TICKS(100));
+    esp_err_t err = i2c_master_cmd_begin(m_i2cPort, cmd, pdMS_TO_TICKS(100));
 
     i2c_cmd_link_delete(cmd);
 
@@ -103,7 +103,7 @@ const std::vector<uint8_t>& command)
 
         i2c_master_stop(cmd);
 
-        esp_err_t err = i2c_master_cmd_begin(*m_i2cPort.get(), cmd, pdMS_TO_TICKS(100));
+        esp_err_t err = i2c_master_cmd_begin(m_i2cPort, cmd, pdMS_TO_TICKS(100));
 
         if(err != ESP_OK) return false;
         return true;

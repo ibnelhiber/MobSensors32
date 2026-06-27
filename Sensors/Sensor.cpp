@@ -18,12 +18,6 @@ Sensor::~Sensor()
 	StopPolling();
 }
 
-double Sensor::SetupData(std::array<uint8_t,9> array)
-{
-	double currentDistance =  (array[m_indexes.highIndex] << 8 
-        | array[m_indexes.lowIndex])/ 100.00;
-    return currentDistance;
-}
 
 double Sensor::get_distance()
 {

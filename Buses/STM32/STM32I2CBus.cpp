@@ -39,16 +39,16 @@ void STM32I2CBus::I2CSetup()
 
     HAL_GPIO_Init(get_scl().gpioPort, &sclInit);
 
-    m_i2cPort->Init.OwnAddress1 = 0;
-    m_i2cPort->Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
-    m_i2cPort->Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-    m_i2cPort->Init.OwnAddress2 = 0;
-    m_i2cPort->Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-    m_i2cPort->Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+    m_i2cPort.Init.OwnAddress1 = 0;
+    m_i2cPort.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+    m_i2cPort.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+    m_i2cPort.Init.OwnAddress2 = 0;
+    m_i2cPort.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+    m_i2cPort.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
 
     SetI2CPortTimingParamaters(m_i2cPort);
 
-    HAL_I2C_Init(m_i2cPort.get());
+    HAL_I2C_Init(&m_i2cPort);
 
 }
 
@@ -60,7 +60,7 @@ bool STM32I2CBus::CheckPortAvailability()
 
     if(sda_port == scl_port && m_usedI2CPorts.find(sda_port) == m_usedI2CPorts.end())
     {
-        m_i2cPort->Instance = port;
+        m_i2cPort.Instance = port;
         m_usedI2CPorts.insert(port);
         enable_i2c_clock_map.at(port).enableI2C();
         return true;
@@ -73,7 +73,7 @@ bool STM32I2CBus::CheckPortAvailability()
 bool STM32I2CBus::Read(const uint8_t address, std::vector<uint8_t>& packet)
 {
     HAL_StatusTypeDef status = HAL_I2C_Master_Receive(
-        m_i2cPort.get(),
+        &m_i2cPort,
         static_cast<uint16_t>(address << 1),
         packet.data(),
         packet.size(),
@@ -87,7 +87,7 @@ bool STM32I2CBus::ReadFromRegister(const uint8_t address, std::vector<uint8_t>& 
 const int registerAddress)
 {
     HAL_StatusTypeDef status = HAL_I2C_Mem_Read(
-        m_i2cPort.get(),
+        &m_i2cPort,
         static_cast<uint16_t>(address << 1),
         static_cast<uint16_t>(*registerAddress),
         I2C_MEMADD_SIZE_8BIT,
@@ -108,7 +108,7 @@ bool STM32I2CBus::ReadAfterCommand(
     HAL_StatusTypeDef status;
 
     status = HAL_I2C_Master_Transmit(
-        m_i2cPort.get(),
+        &m_i2cPort,
         static_cast<uint16_t>(address << 1),
         command.data(),
         static_cast<uint16_t>(command.size()),
@@ -121,7 +121,7 @@ bool STM32I2CBus::ReadAfterCommand(
     }
 
     status = HAL_I2C_Master_Receive(
-        m_i2cPort.get(),
+        &m_i2cPort,
         static_cast<uint16_t>(address << 1),
         packet.data(),
         static_cast<uint16_t>(packet.size()),
