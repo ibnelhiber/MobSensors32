@@ -11,9 +11,8 @@ class STM32UARTBus : public IUARTBus, public STM32Bus
 {
 
 private:
-    static std::unordered_set<USART_TypeDef*> m_usedI2CPorts;
-    std::unique_ptr<UART_HandleTypeDef> m_uartPort{
-        std::make_unique<UART_HandleTypeDef>()};
+    static std::unordered_set<USART_TypeDef*> m_usedUARTPorts;
+    UART_HandleTypeDef m_uartPort;
     bool CheckPortAvailability() override;
     
     void UARTSetup() override;
@@ -24,7 +23,6 @@ private:
 public:
     STM32UARTBus(GPIOPin tx, GPIOPin rx);
     bool Read(std::vector<uint8_t>& packet) override;
-    bool ReadFromRegister(std::vector<uint8_t>& packet, const int registerAddress) override;
     bool ReadAfterCommand(std::vector<uint8_t>& packet, const std::vector<uint8_t>& command) override;
 };
 

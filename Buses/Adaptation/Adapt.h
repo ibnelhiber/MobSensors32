@@ -25,7 +25,7 @@
 
     struct GPIOPinHash
     {
-        std::size_t operator()(const GPIOPin& gpioPin) const
+        std::size_t operator()(const GPIOPin& gpioPin) const noexcept
         {
             // std::hash is callable. Argument is what to create a hash for
             std::size_t portHashVal = std::hash<GPIO_TypeDef*>{}(gpioPin.gpioPort);
@@ -62,18 +62,18 @@
         {4, I2C4}
     };
 
-    typedef struct I2CSetupInfo
+    struct I2CSetupInfo
     {
-        std::function<void()>> enableI2C;
+        std::function<void()> enableI2C;
         uint8_t portMacro;
     };
 
     const std::unordered_map<I2C_TypeDef*, I2CSetupInfo> enable_i2c_clock_map =
     {
-        { I2C1, I2CSetupInfo([](){ __HAL_RCC_I2C1_CLK_ENABLE();}, GPIO_AF4_I2C1)},
-        { I2C2, I2CSetupInfo([](){ __HAL_RCC_I2C2_CLK_ENABLE();}, GPIO_AF4_I2C2)},
-        { I2C3, I2CSetupInfo([](){ __HAL_RCC_I2C3_CLK_ENABLE();}, GPIO_AF4_I2C3)},
-        { I2C4, I2CSetupInfo([](){ __HAL_RCC_I2C3_CLK_ENABLE();}, GPIO_AF4_I2C4)}
+        { I2C1, {[](){ __HAL_RCC_I2C1_CLK_ENABLE();}, GPIO_AF4_I2C1}},
+        { I2C2, {[](){ __HAL_RCC_I2C2_CLK_ENABLE();}, GPIO_AF4_I2C2}},
+        { I2C3, {[](){ __HAL_RCC_I2C3_CLK_ENABLE();}, GPIO_AF4_I2C3}},
+        { I2C4, {[](){ __HAL_RCC_I2C3_CLK_ENABLE();}, GPIO_AF4_I2C4}}
     };
 
     enum class I2CRole
@@ -82,13 +82,13 @@
         SCL
     };
 
-    typedef struct I2CPinOptions
+    struct I2CPinOptions
     {
         I2C_TypeDef* i2cPort;
         I2CRole possibleI2CRoles;
     };
 
-    const std::unordered_map<GPIOPin, I2CPinOptions> i2c_pin_options_map =
+    const std::unordered_map<GPIOPin, I2CPinOptions, GPIOPinHash> i2c_pin_options_map =
     {
         // I2C1
         { {GPIOB, GPIO_PIN_6 }, { I2C1, I2CRole::SCL } },
@@ -125,9 +125,9 @@
         { {GPIOH, GPIO_PIN_12}, { I2C4, I2CRole::SDA } }
     };
 
-    inline void SetI2CPortTimingParamaters(std::unique_ptr<I2C_HandleTypeDef>& i2cPort)
+    inline void SetI2CPortTimingParamaters(I2C_HandleTypeDef& i2cPort)
     {
-        i2cPort->Init.Timing = 0x20404768;
+        i2cPort.Init.Timing = 0x20404768;
     }
 
     typedef struct UARTSetupInfo
@@ -160,7 +160,7 @@
         UARTRole role;
     };
 
-    const std::unordered_map<GPIOPin, UARTPinOptions> uart_pin_options_map =
+    const std::unordered_map<GPIOPin, UARTPinOptions, GPIOPinHash> uart_pin_options_map =
     {
         // USART1
         {{GPIOA, GPIO_PIN_9 }, {USART1, UARTRole::TX}},

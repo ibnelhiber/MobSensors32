@@ -57,7 +57,7 @@ void TFLuna::ReadSensorUART_()
 	else
 	{
 		printf("Incorrectly filled UART packet\n");
-		for(auto i{0uz}; i < packet.size(); i++)
+		for(size_t i{0}; i < packet.size(); i++)
 		{
 			printf("Index %d: %d", i, packet[i]);
 		}

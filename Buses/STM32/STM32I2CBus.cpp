@@ -23,19 +23,19 @@ void STM32I2CBus::I2CSetup()
 {
     GPIO_InitTypeDef sdaInit{};
     sdaInit.Pin = get_sda().pin;
-    gpioInit.Mode = GPIO_MODE_AF_OD;
-    gpioInit.Pull = GPIO_PULLUP;
-    gpioInit.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    gpioInit.Alternate = enable_i2c_clock_map.at(m_i2cPort).portMacro;
+    sdaInit.Mode = GPIO_MODE_AF_OD;
+    sdaInit.Pull = GPIO_PULLUP;
+    sdaInit.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    sdaInit.Alternate = enable_i2c_clock_map.at(m_i2cPort.Instance).portMacro;
 
     HAL_GPIO_Init(get_sda().gpioPort, &sdaInit);
 
     GPIO_InitTypeDef sclInit{};
-    sdaInit.Pin = get_scl().pin;
-    gpioInit.Mode = GPIO_MODE_AF_OD;
-    gpioInit.Pull = GPIO_PULLUP;
-    gpioInit.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    gpioInit.Alternate = enable_i2c_clock_map.at(m_i2cPort).portMacro;
+    sclInit.Pin = get_scl().pin;
+    sclInit.Mode = GPIO_MODE_AF_OD;
+    sclInit.Pull = GPIO_PULLUP;
+    sclInit.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    sclInit.Alternate = enable_i2c_clock_map.at(m_i2cPort.Instance).portMacro;
 
     HAL_GPIO_Init(get_scl().gpioPort, &sclInit);
 
@@ -60,9 +60,9 @@ bool STM32I2CBus::CheckPortAvailability()
 
     if(sda_port == scl_port && m_usedI2CPorts.find(sda_port) == m_usedI2CPorts.end())
     {
-        m_i2cPort.Instance = port;
-        m_usedI2CPorts.insert(port);
-        enable_i2c_clock_map.at(port).enableI2C();
+        m_i2cPort.Instance = sda_port;
+        m_usedI2CPorts.insert(sda_port);
+        enable_i2c_clock_map.at(sda_port).enableI2C();
         return true;
     }
 
@@ -89,7 +89,7 @@ const int registerAddress)
     HAL_StatusTypeDef status = HAL_I2C_Mem_Read(
         &m_i2cPort,
         static_cast<uint16_t>(address << 1),
-        static_cast<uint16_t>(*registerAddress),
+        static_cast<uint16_t>(registerAddress),
         I2C_MEMADD_SIZE_8BIT,
         packet.data(),
         packet.size(),
@@ -110,7 +110,7 @@ bool STM32I2CBus::ReadAfterCommand(
     status = HAL_I2C_Master_Transmit(
         &m_i2cPort,
         static_cast<uint16_t>(address << 1),
-        command.data(),
+        const_cast<uint8_t*>(command.data()),
         static_cast<uint16_t>(command.size()),
         TIME_OUT_MS
     );
