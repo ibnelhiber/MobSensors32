@@ -23,14 +23,6 @@ void ESP32UARTBus::UARTSetup()
 
     uart_param_config(m_uartPort, &config);
 
-    uart_set_pin(
-        m_uartPort,
-        get_tx(),
-        get_rx(),
-        UART_PIN_NO_CHANGE, // Don't set RTS pin
-        UART_PIN_NO_CHANGE // Don't set CTS pin
-    );
-
     uart_driver_install(
         m_uartPort,
         1024,   // RX buffer size
@@ -40,6 +32,14 @@ void ESP32UARTBus::UARTSetup()
         0,      // No need for queue, we will be polling.
         nullptr,
         0 // Use default interrupt level for UART
+    );
+
+    uart_set_pin(
+        m_uartPort,
+        get_tx(),
+        get_rx(),
+        UART_PIN_NO_CHANGE, // Don't set RTS pin
+        UART_PIN_NO_CHANGE // Don't set CTS pin
     );
 }
 
@@ -65,47 +65,14 @@ bool ESP32UARTBus::CheckPortAvailability()
 
 bool ESP32UARTBus::Read(std::vector<uint8_t>& packet)
 {
-    if (packet.size() < 9)
-    {
-        return false;
-    }
-
-    uint8_t byte = 0;
-
-    while (true)
-    {
-        int read = uart_read_bytes(m_uartPort, &byte, 1, pdMS_TO_TICKS(100));
-
-        if (read != 1)
-        {
-            return false;
-        }
-
-        if (byte == 0x59)
-        {
-            int read2 = uart_read_bytes(m_uartPort, &byte, 1, pdMS_TO_TICKS(100));
-
-            if (read2 != 1)
-            {
-                return false;
-            }
-
-            if (byte == 0x59)
-            {
-                packet[0] = 0x59;
-                packet[1] = 0x59;
-
-                int restRead = uart_read_bytes(
-                    m_uartPort,
-                    packet.data() + 2,
-                    7,
-                    pdMS_TO_TICKS(100)
-                );
-
-                return restRead == 7;
-            }
-        }
-    }
+    int bytesRead = uart_read_bytes(
+        m_uartPort,
+        packet.data(),
+        packet.size(),
+        pdMS_TO_TICKS(100)
+    );
+    
+    return bytesRead == static_cast<int>(packet.size());
 }
 
 

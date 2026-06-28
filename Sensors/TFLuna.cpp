@@ -39,16 +39,30 @@ void TFLuna::ReadSensorI2C_()
 
 	m_distance = SetupData(packet);
 
-	printf("Distance: %f\n", m_distance);
+	printf("TFLuna Distance: %f\n", m_distance);
 }
 
 void TFLuna::ReadSensorUART_()
 {
 	std::vector<uint8_t> packet(9);
-	m_uartBus->Read(packet);
+	if(!m_uartBus->Read(packet))
+	{
+		printf("UART read was false\n");
+	}
 
-	m_distance = SetupData(packet);
+	if(packet[0] == 0x59 && packet[1] == 0x59)
+	{
+		m_distance = SetupData(packet);
+	}
+	else
+	{
+		printf("Incorrectly filled UART packet\n");
+		for(auto i{0uz}; i < packet.size(); i++)
+		{
+			printf("Index %d: %d", i, packet[i]);
+		}
+	}
 
-	printf("Distance: %f\n", m_distance);
+	printf("TFLuna Distance: %f\n", m_distance);
 }
 
