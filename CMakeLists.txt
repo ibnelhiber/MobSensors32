@@ -8,8 +8,12 @@ idf_component_register(
     "Buses/II2CBus.cpp"
     "Buses/ESP32/ESP32Bus.cpp"
     "Buses/ESP32/ESP32I2CBus.cpp"
+    "Buses/ESP32/ESP32UARTBus.cpp"
+    "Buses/IUARTBus.cpp"
+    "Buses/UARTBus.cpp"
     "Sensors/Sensor.cpp"
-    "Sensors/TFLuna.cpp" 
+    "Sensors/TFLuna.cpp"
+    "Buses/Adaptation/Implementation.cpp" 
     INCLUDE_DIRS
         "."
         "Tasks"
@@ -17,6 +21,4 @@ idf_component_register(
         "Sensors"
     REQUIRES driver
 )
-target_compile_definitions(${COMPONENT_LIB} PUBLIC USE_ESP32)
-
 endif()

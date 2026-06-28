@@ -21,10 +21,10 @@ void ESP32UARTBus::UARTSetup()
     config.flow_ctrl = UART_HW_FLOWCTRL_DISABLE;
     config.source_clk = UART_SCLK_DEFAULT;
 
-    uart_param_config(*m_uartPort, &config);
+    uart_param_config(m_uartPort, &config);
 
     uart_set_pin(
-        *m_uartPort,
+        m_uartPort,
         get_tx(),
         get_rx(),
         UART_PIN_NO_CHANGE, // Don't set RTS pin
@@ -32,7 +32,7 @@ void ESP32UARTBus::UARTSetup()
     );
 
     uart_driver_install(
-        *m_uartPort,
+        m_uartPort,
         1024,   // RX buffer size
         // No TX buffer needed, ESP32S3 buffer 128 bytes.
         // We only send out a maximum of 5 bytes at a time right now.
@@ -45,7 +45,7 @@ void ESP32UARTBus::UARTSetup()
 
 bool ESP32UARTBus::CheckPortAvailability()
 {
-    for (int p = static_cast<int>(UART_NUM_0); p < static_cast<int>(UART_NUM_MAX); ++p)
+    for (int p = static_cast<int>(UART_NUM_1); p < static_cast<int>(UART_NUM_MAX); ++p)
     {
         uart_port_t port = static_cast<uart_port_t>(p);
 
@@ -53,8 +53,9 @@ bool ESP32UARTBus::CheckPortAvailability()
 
         if (m_usedUARTPorts.find(port) == m_usedUARTPorts.end())
         {
-            m_uartPort = std::make_unique<uart_port_t>(port);
+            m_uartPort = port;
             m_usedUARTPorts.insert(port);
+            printf("Using UART port: %d\n", static_cast<int>(m_uartPort));
             return true;
         }
     }
@@ -64,43 +65,82 @@ bool ESP32UARTBus::CheckPortAvailability()
 
 bool ESP32UARTBus::Read(std::vector<uint8_t>& packet)
 {
-    int bytesRead = uart_read_bytes(
-        *m_uartPort,
-        packet.data(),
-        packet.size(),
-        pdMS_TO_TICKS(100)
-    );
+    if (packet.size() < 9)
+    {
+        return false;
+    }
 
-    return bytesRead == static_cast<int>(packet.size());
+    uint8_t byte = 0;
+
+    while (true)
+    {
+        int read = uart_read_bytes(m_uartPort, &byte, 1, pdMS_TO_TICKS(100));
+
+        if (read != 1)
+        {
+            return false;
+        }
+
+        if (byte == 0x59)
+        {
+            int read2 = uart_read_bytes(m_uartPort, &byte, 1, pdMS_TO_TICKS(100));
+
+            if (read2 != 1)
+            {
+                return false;
+            }
+
+            if (byte == 0x59)
+            {
+                packet[0] = 0x59;
+                packet[1] = 0x59;
+
+                int restRead = uart_read_bytes(
+                    m_uartPort,
+                    packet.data() + 2,
+                    7,
+                    pdMS_TO_TICKS(100)
+                );
+
+                return restRead == 7;
+            }
+        }
+    }
 }
 
 
-bool ESP32UARTBus::ReadAfterCommand(
-    std::vector<uint8_t>& packet,
-    const std::vector<uint8_t>& command)
+bool ESP32UARTBus::ReadAfterCommand(std::vector<uint8_t>& packet,
+                                    const std::vector<uint8_t>& command)
 {
-    int bytes_written = uart_write_bytes(
-    *m_uartPort,
-    reinterpret_cast<const char*>(command.data()), // Data is uint8_t so reintrept as char
-    command.size()
+    if (packet.empty() || command.empty())
+    {
+        return false;
+    }
+
+    constexpr TickType_t timeout = pdMS_TO_TICKS(100);
+
+    int bytesWritten = uart_write_bytes(
+        m_uartPort,
+        reinterpret_cast<const char*>(command.data()),
+        command.size()
     );
 
-    bool write_status = bytesWritten == static_cast<int>(command.size());
-
-    if (!write_status)
+    if (bytesWritten != static_cast<int>(command.size()))
     {
         return false;
     }
 
     int bytesRead = uart_read_bytes(
-    *m_uartPort,
-    packet.data(),
-    packet.size(),
-    pdMS_TO_TICKS(100)
+        m_uartPort,
+        packet.data(),
+        packet.size(),
+        timeout
     );
 
     return bytesRead == static_cast<int>(packet.size());
 }
+
+
 
 gpio_num_t ESP32UARTBus::get_tx()
 {

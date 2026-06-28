@@ -47,7 +47,7 @@ bool ESP32I2CBus::CheckPortAvailability()
 
 bool ESP32I2CBus::Read(const uint8_t address, std::vector<uint8_t>& packet)
 {
-    i2c_handle_t cmd = i2c_cmd_link_create();
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
 
     i2c_master_start(cmd);
     i2c_master_write_byte(cmd, (address << 1) | I2C_MASTER_READ, true);
@@ -66,11 +66,11 @@ bool ESP32I2CBus::Read(const uint8_t address, std::vector<uint8_t>& packet)
 bool ESP32I2CBus::ReadFromRegister(const uint8_t address, std::vector<uint8_t>& packet,
 const int registerAddress)
 {
-    i2c_handle_t cmd = i2c_cmd_link_create();
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
 
     i2c_master_start(cmd);
     i2c_master_write_byte(cmd, (address << 1) | I2C_MASTER_WRITE, true);
-    i2c_master_write_byte(cmd, *registerAddress, true);
+    i2c_master_write_byte(cmd, registerAddress, true);
 
     // Repeated start and read
     i2c_master_start(cmd);
@@ -90,23 +90,43 @@ const int registerAddress)
 bool ESP32I2CBus::ReadAfterCommand(const uint8_t address, std::vector<uint8_t>& packet, 
 const std::vector<uint8_t>& command)
 {
-        i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-        i2c_master_start(cmd);
-        i2c_master_write_byte(cmd, (address << 1) | I2C_MASTER_WRITE, true);
-        i2c_master_write(cmd, command, sizeof(command), true);
+    if (packet.empty() || command.empty())
+    {
+        return false;
+    }
 
-        // Repeated start and read
-        i2c_master_start(cmd);
-        i2c_master_write_byte(cmd, (address << 1) | I2C_MASTER_READ, true);
-        i2c_master_read(cmd, packet.data(), packet.size() - 1, I2C_MASTER_ACK);
-        i2c_master_read_byte(cmd, &packet[packet.size() - 1], I2C_MASTER_NACK);
+    i2c_cmd_handle_t writeCmd = i2c_cmd_link_create();
 
-        i2c_master_stop(cmd);
+    i2c_master_start(writeCmd);
+    i2c_master_write_byte(writeCmd, (address << 1) | I2C_MASTER_WRITE, true);
+    i2c_master_write(writeCmd, command.data(), command.size(), true);
+    i2c_master_stop(writeCmd);
 
-        esp_err_t err = i2c_master_cmd_begin(m_i2cPort, cmd, pdMS_TO_TICKS(100));
+    esp_err_t err = i2c_master_cmd_begin(m_i2cPort, writeCmd, pdMS_TO_TICKS(100));
+    i2c_cmd_link_delete(writeCmd);
 
-        if(err != ESP_OK) return false;
-        return true;
+    if (err != ESP_OK)
+    {
+        return false;
+    }
+
+    i2c_cmd_handle_t readCmd = i2c_cmd_link_create();
+
+    i2c_master_start(readCmd);
+    i2c_master_write_byte(readCmd, (address << 1) | I2C_MASTER_READ, true);
+
+    if (packet.size() > 1)
+    {
+        i2c_master_read(readCmd, packet.data(), packet.size() - 1, I2C_MASTER_ACK);
+    }
+
+    i2c_master_read_byte(readCmd, &packet[packet.size() - 1], I2C_MASTER_NACK);
+    i2c_master_stop(readCmd);
+
+    err = i2c_master_cmd_begin(m_i2cPort, readCmd, pdMS_TO_TICKS(100));
+    i2c_cmd_link_delete(readCmd);
+
+    return err == ESP_OK;
 }
 
 

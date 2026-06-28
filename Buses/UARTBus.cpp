@@ -7,35 +7,23 @@ UARTBus::UARTBus(IOPin tx, IOPin rx)
 }
 
 
-bool UARTBus::Read(const uint8_t address, std::vector<uint8_t>& packet)
+bool UARTBus::Read(std::vector<uint8_t>& packet)
 {
      if(m_implementation)
     {
-        return m_implementation->Read(address, packet);
+        return m_implementation->Read(packet);
     }
 
     return false;   
 }
 
 
-bool UARTBus::ReadFromRegister(const uint8_t address, std::vector<uint8_t>& packet,
-const int registerAddress)
-{
-    if(m_implementation)
-    {
-        return m_implementation->ReadFromRegister(address, packet, registerAddress);
-    }
-
-    return false;
-}
-
-
-bool UARTBus::ReadAfterCommand(const uint8_t address, std::vector<uint8_t>& packet, 
+bool UARTBus::ReadAfterCommand(std::vector<uint8_t>& packet, 
 const std::vector<uint8_t>& command)
 {
     if(m_implementation)
     {
-        return m_implementation->ReadAfterCommand(address, packet, command);
+        return m_implementation->ReadAfterCommand(packet, command);
     }
 
     return false;

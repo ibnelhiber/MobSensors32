@@ -9,7 +9,7 @@ bool I2CBus::CheckBusAvailability(const uint8_t address)
 {
     if(m_implementation)
     {
-        return m_implementation->CheckBusAvailability(address);
+        return m_implementation->CheckAddressAvailability(address);
     }
 
     return false;

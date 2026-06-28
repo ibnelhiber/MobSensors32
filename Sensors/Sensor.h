@@ -29,7 +29,7 @@ class Sensor : public std::enable_shared_from_this<Sensor>
 protected:
     std::unique_ptr<Task> m_pollingTask;
 
-    double m_distance;
+    float m_distance;
 
     distanceIndexes m_indexes;
     std::shared_ptr<I2CBus> m_i2cBus;

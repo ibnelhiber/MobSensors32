@@ -12,7 +12,12 @@
 #endif
 
 class II2CBus;
+class IUARTBus;
 
 std::shared_ptr<II2CBus> CreateI2CImplementation(
+    IOPin sda,
+    IOPin scl);
+
+std::shared_ptr<IUARTBus> CreateUARTImplementation(
     IOPin sda,
     IOPin scl);
