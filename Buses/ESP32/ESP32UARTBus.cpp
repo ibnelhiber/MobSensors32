@@ -23,7 +23,7 @@ void ESP32UARTBus::UARTSetup()
 
     uart_param_config(m_uartPort, &config);
 
-    uart_driver_install(
+    _install(
         m_uartPort,
         1024,   // RX buffer size
         // No TX buffer needed, ESP32S3 buffer 128 bytes.

@@ -8,7 +8,7 @@ Task::Task(std::weak_ptr<Sensor> parentSensor) : m_parentSensor(parentSensor)
 bool Task::StartTask()
 {
     printf("Starting Task\n");
-    BaseType_t ok = xTaskCreate(&Task::PollTask, "sensor_poll", 4096, this, 5, &m_task);
+    BaseType_t ok = xTaskCreate(&Task::PollTask, "sensor_poll", 2048, this, 5, &m_task);
     if(ok == pdPASS)
     {
         printf("Task Successfully Created");

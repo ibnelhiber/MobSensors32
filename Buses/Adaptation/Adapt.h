@@ -133,19 +133,77 @@
     typedef struct UARTSetupInfo
     {
         std::function<void()> enableUART;
+        std::function<void()> setIRQPriority;
+        std::function<void()> enableIRQ;
         uint8_t alternateFunction;
     } UARTSetupInfo;
 
+    const UARTSetupInfo UARTSetupInfoOne{
+        [](){ __HAL_RCC_USART1_CLK_ENABLE(); },
+        [](){ HAL_NVIC_SetPriority(USART1_IRQn, 5, 0); },
+        [](){ HAL_NVIC_EnableIRQ(USART1_IRQn); },
+        GPIO_AF7_USART1
+    };
+
+    const UARTSetupInfo UARTSetupInfoTwo{
+        [](){ __HAL_RCC_USART2_CLK_ENABLE(); },
+        [](){ HAL_NVIC_SetPriority(USART2_IRQn, 5, 0); },
+        [](){ HAL_NVIC_EnableIRQ(USART2_IRQn); },
+        GPIO_AF7_USART2
+    };
+
+    const UARTSetupInfo UARTSetupInfoThree{
+        [](){ __HAL_RCC_USART3_CLK_ENABLE(); },
+        [](){ HAL_NVIC_SetPriority(USART3_IRQn, 5, 0); },
+        [](){ HAL_NVIC_EnableIRQ(USART3_IRQn); },
+        GPIO_AF7_USART3
+    };
+
+    const UARTSetupInfo UARTSetupInfoFour{
+        [](){ __HAL_RCC_UART4_CLK_ENABLE(); },
+        [](){ HAL_NVIC_SetPriority(UART4_IRQn, 5, 0); },
+        [](){ HAL_NVIC_EnableIRQ(UART4_IRQn); },
+        GPIO_AF8_UART4
+    };
+
+    const UARTSetupInfo UARTSetupInfoFive{
+        [](){ __HAL_RCC_UART5_CLK_ENABLE(); },
+        [](){ HAL_NVIC_SetPriority(UART5_IRQn, 5, 0); },
+        [](){ HAL_NVIC_EnableIRQ(UART5_IRQn); },
+        GPIO_AF8_UART5
+    };
+
+    const UARTSetupInfo UARTSetupInfoSix{
+        [](){ __HAL_RCC_USART6_CLK_ENABLE(); },
+        [](){ HAL_NVIC_SetPriority(USART6_IRQn, 5, 0); },
+        [](){ HAL_NVIC_EnableIRQ(USART6_IRQn); },
+        GPIO_AF8_USART6
+    };
+
+    const UARTSetupInfo UARTSetupInfoSeven{
+        [](){ __HAL_RCC_UART7_CLK_ENABLE(); },
+        [](){ HAL_NVIC_SetPriority(UART7_IRQn, 5, 0); },
+        [](){ HAL_NVIC_EnableIRQ(UART7_IRQn); },
+        GPIO_AF8_UART7
+    };
+
+    const UARTSetupInfo UARTSetupInfoEight{
+        [](){ __HAL_RCC_UART8_CLK_ENABLE(); },
+        [](){ HAL_NVIC_SetPriority(UART8_IRQn, 5, 0); },
+        [](){ HAL_NVIC_EnableIRQ(UART8_IRQn); },
+        GPIO_AF8_UART8
+    };
+
     const std::unordered_map<USART_TypeDef*, UARTSetupInfo> enable_uart_clock_map =
     {
-        { USART1, { [](){ __HAL_RCC_USART1_CLK_ENABLE(); }, GPIO_AF7_USART1 } },
-        { USART2, { [](){ __HAL_RCC_USART2_CLK_ENABLE(); }, GPIO_AF7_USART2 } },
-        { USART3, { [](){ __HAL_RCC_USART3_CLK_ENABLE(); }, GPIO_AF7_USART3 } },
-        { UART4,  { [](){ __HAL_RCC_UART4_CLK_ENABLE();  }, GPIO_AF8_UART4  } },
-        { UART5,  { [](){ __HAL_RCC_UART5_CLK_ENABLE();  }, GPIO_AF8_UART5  } },
-        { USART6, { [](){ __HAL_RCC_USART6_CLK_ENABLE(); }, GPIO_AF8_USART6 } },
-        { UART7,  { [](){ __HAL_RCC_UART7_CLK_ENABLE();  }, GPIO_AF8_UART7  } },
-        { UART8,  { [](){ __HAL_RCC_UART8_CLK_ENABLE();  }, GPIO_AF8_UART8  } }
+        { USART1, UARTSetupInfoOne },
+        { USART2, UARTSetupInfoTwo },
+        { USART3, UARTSetupInfoThree },
+        { UART4,  UARTSetupInfoFour },
+        { UART5,  UARTSetupInfoFive },
+        { USART6, UARTSetupInfoSix },
+        { UART7,  UARTSetupInfoSeven },
+        { UART8,  UARTSetupInfoEight }
     };
 
     enum class UARTRole

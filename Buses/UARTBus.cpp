@@ -9,7 +9,7 @@ UARTBus::UARTBus(IOPin tx, IOPin rx)
 
 bool UARTBus::Read(std::vector<uint8_t>& packet)
 {
-     if(m_implementation)
+    if(m_implementation)
     {
         return m_implementation->Read(packet);
     }

@@ -12,7 +12,7 @@ class STM32I2CBus : public II2CBus, public STM32Bus
 
 private:
     static std::unordered_set<I2C_TypeDef*> m_usedI2CPorts;
-    I2C_HandleTypeDef m_i2cPort;
+    I2C_HandleTypeDef m_i2cPort{};
     bool CheckPortAvailability() override;
     
     void I2CSetup() override;

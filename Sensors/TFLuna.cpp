@@ -59,10 +59,10 @@ void TFLuna::ReadSensorUART_()
 		printf("Incorrectly filled UART packet\n");
 		for(size_t i{0}; i < packet.size(); i++)
 		{
-			printf("Index %d: %d", i, packet[i]);
+			printf("Index %d: %d, ", i, packet[i]);
 		}
 	}
 
-	printf("TFLuna Distance: %f\n", m_distance);
+	printf("\nTFLuna Distance: %f\n", m_distance);
 }
 
