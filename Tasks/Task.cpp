@@ -5,9 +5,10 @@
 Task::Task(std::weak_ptr<Sensor> parentSensor) : m_parentSensor(parentSensor)
 {}
 
-bool Task::StartTask()
+bool Task::StartTask(const int delayPeriod)
 {
     printf("Starting Task\n");
+    m_delayPeriod = delayPeriod;
     BaseType_t ok = xTaskCreate(&Task::PollTask, "sensor_poll", 2048, this, 5, &m_task);
     if(ok == pdPASS)
     {
@@ -22,7 +23,7 @@ void Task::PollTask(void* param)
 {
     printf("Entered Poll Task\n");
 
-    //Static function, therefore cannot use member variables
+    // Static function, therefore cannot use member variables
     auto task = static_cast<Task*>(param);
 
     while (true) 
@@ -31,7 +32,7 @@ void Task::PollTask(void* param)
         {
             sensor->ReadSensor();
         }
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        vTaskDelay(pdMS_TO_TICKS(task->m_delayPeriod));
     }
 }
 

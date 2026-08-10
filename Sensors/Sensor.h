@@ -43,7 +43,7 @@ public:
     explicit Sensor(std::unique_ptr<UARTBus> bus);
     ~Sensor();
     std::function<void(void)> ReadSensor;
-    void PollSensor();
+    void PollSensor(const int delayPeriod);
     void StopPolling();
     double get_distance();
 };

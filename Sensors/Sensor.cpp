@@ -24,13 +24,13 @@ double Sensor::get_distance()
     return m_distance;
 }
 
-void Sensor::PollSensor()
+void Sensor::PollSensor(const int delayPeriod)
 {
 	printf("Starting to poll sensor");
     if(!m_pollingTask)
     {
         m_pollingTask = std::make_unique<Task>(shared_from_this());
-        m_pollingTask->StartTask();
+        m_pollingTask->StartTask(delayPeriod);
     }
     else
     {
