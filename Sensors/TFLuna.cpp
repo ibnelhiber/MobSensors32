@@ -39,7 +39,7 @@ void TFLuna::ReadSensorI2C_()
 
 	m_distance = SetupData(packet);
 
-	printf("TFLuna Distance: %f\n", m_distance);
+	printf("TFLuna Distance: %.2f m\n", m_distance);
 }
 
 void TFLuna::ReadSensorUART_()
@@ -53,7 +53,7 @@ void TFLuna::ReadSensorUART_()
 	if(packet[0] == 0x59 && packet[1] == 0x59)
 	{
 		m_distance = SetupData(packet);
-		printf("\nTFLuna Distance: %f\n", m_distance);
+		printf("\nTFLuna Distance: %.2f m\n", m_distance);
 	}
 	else
 	{

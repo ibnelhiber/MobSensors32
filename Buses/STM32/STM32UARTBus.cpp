@@ -3,7 +3,7 @@
 
 constexpr uint32_t TIME_OUT_MS = 100;
 
-std::unordered_map<USART_TypeDef*, STM32UARTBus*> STM32UARTBus::m_instanceMap{};
+std::unordered_set<USART_TypeDef*> STM32UARTBus::m_usedPortInstances{};
 
 STM32UARTBus::STM32UARTBus(GPIOPin tx, GPIOPin rx) : STM32Bus(tx, rx)
 {
@@ -19,9 +19,9 @@ STM32UARTBus::STM32UARTBus(GPIOPin tx, GPIOPin rx) : STM32Bus(tx, rx)
 
 STM32UARTBus::~STM32UARTBus()
 {
-    if(m_instanceMap.find(m_uartPort.Instance) != m_instanceMap.end())
+    if(m_usedPortInstances.find(m_uartPort.Instance) != m_usedPortInstances.end())
     {
-        m_instanceMap.erase(m_uartPort.Instance);
+        m_usedPortInstances.erase(m_uartPort.Instance);
     }
 }
 
@@ -56,8 +56,6 @@ void STM32UARTBus::UARTSetup()
     m_uartPort.Init.OverSampling = UART_OVERSAMPLING_16;
 
     HAL_UART_Init(&m_uartPort);
-    // setupInfo.setIRQPriority();
-    // setupInfo.enableIRQ();
 }
 
 
@@ -66,10 +64,10 @@ bool STM32UARTBus::CheckPortAvailability()
     USART_TypeDef* tx_port = uart_pin_options_map.at(get_tx()).uartPort;
     USART_TypeDef* rx_port = uart_pin_options_map.at(get_rx()).uartPort;
 
-    if(tx_port == rx_port && m_instanceMap.find(tx_port) == m_instanceMap.end())
+    if(tx_port == rx_port && m_usedPortInstances.find(tx_port) == m_usedPortInstances.end())
     {
         m_uartPort.Instance = tx_port;
-        m_instanceMap[tx_port] = this;
+        m_usedPortInstances.insert(m_uartPort.Instance);
         enable_uart_clock_map.at(tx_port).enableUART();
         return true;
     }
@@ -80,9 +78,6 @@ bool STM32UARTBus::CheckPortAvailability()
 
 bool STM32UARTBus::Read(std::vector<uint8_t>& packet)
 {
-    // m_waitingTask = xTaskGetCurrentTaskHandle();
-    // m_readComplete = false;
-
     volatile int lastRDRVal = m_uartPort.Instance->RDR;
     (void)lastRDRVal;
 
@@ -97,35 +92,12 @@ bool STM32UARTBus::Read(std::vector<uint8_t>& packet)
 
     if(status != HAL_OK)
     {
-        m_waitingTask = nullptr;
-        m_readComplete = false;
         printf("Failure code: %d\n", status);
-        printf("UART error: 0x%X\n", m_uartPort.ErrorCode);
+        printf("UART error code: 0x%X\n", m_uartPort.ErrorCode);
         return false;
     }
 
     return true;
-
-    auto notified{true};
-    auto m_readComplete{true};
-    // auto notified{ulTaskNotifyTake(
-    //     pdTRUE,
-    //     pdMS_TO_TICKS(TIME_OUT_MS)
-    // )};
-
-    bool success{notified && m_readComplete};
-
-    m_waitingTask = nullptr;
-    m_readComplete = false;
-
-    if(success)
-    {
-        return true;
-    }
-
-    //HAL_UART_AbortReceive_IT(&m_uartPort);
-    
-    return false;
 }
 
 
@@ -147,41 +119,7 @@ bool STM32UARTBus::ReadAfterCommand(
         return false;
     }
 
-    m_waitingTask = xTaskGetCurrentTaskHandle();
-    m_readComplete = false;
-
-    status = HAL_UART_Receive_IT(
-        &m_uartPort,
-        packet.data(),
-        static_cast<uint16_t>(packet.size())
-    );
-
-    if(status != HAL_OK)
-    {
-        m_waitingTask = nullptr;
-        m_readComplete = false;
-        return false;
-    }
-
-    
-    auto notified{ulTaskNotifyTake(
-        pdTRUE,
-        pdMS_TO_TICKS(TIME_OUT_MS)
-    )};
-
-    bool success{notified > 0 && m_readComplete};
-
-    m_waitingTask = nullptr;
-    m_readComplete = false;
-
-    if(success)
-    {
-        return true;
-    }
-
-    HAL_UART_AbortReceive_IT(&m_uartPort);
-
-    return false;
+    return Read(packet);
 }
 
 
@@ -194,79 +132,4 @@ GPIOPin STM32UARTBus::get_tx()
 GPIOPin STM32UARTBus::get_rx()
 {
     return m_pinTwo;
-}
-
-void STM32UARTBus::HandleUARTIRQ(USART_TypeDef* peripheralInstance)
-{
-    auto& instanceMap{STM32UARTBus::m_instanceMap};
-    if(instanceMap.find(peripheralInstance) != instanceMap.end())
-    {
-        HAL_UART_IRQHandler(&instanceMap.at(peripheralInstance)->m_uartPort);
-    }
-}
-
-void STM32UARTBus::HandleReadComplete(UART_HandleTypeDef* uartPort)
-{
-    // if(STM32UARTBus::m_instanceMap.find(uartPort->Instance) != STM32UARTBus::m_instanceMap.end())
-    // {
-    //     auto bus = STM32UARTBus::m_instanceMap.at(uartPort->Instance);
-    //     bus->m_readComplete = true;
-
-    //     if(bus->m_waitingTask)
-    //     {
-    //         BaseType_t woke{pdFALSE};
-    //         vTaskNotifyGiveFromISR(bus->m_waitingTask, &woke);
-    //         portYIELD_FROM_ISR(woke);
-    //     }
-    // }
-}
-
-extern "C" void USART1_IRQHandler()
-{
-    STM32UARTBus::HandleUARTIRQ(USART1);
-}
-
-extern "C" void USART2_IRQHandler()
-{
-    STM32UARTBus::HandleUARTIRQ(USART2);
-}
-
-extern "C" void USART3_IRQHandler()
-{
-    STM32UARTBus::HandleUARTIRQ(USART3);
-}
-
-extern "C" void UART4_IRQHandler()
-{
-    STM32UARTBus::HandleUARTIRQ(UART4);
-}
-
-extern "C" void UART5_IRQHandler()
-{
-    STM32UARTBus::HandleUARTIRQ(UART5);
-}
-
-extern "C" void USART6_IRQHandler()
-{
-    STM32UARTBus::HandleUARTIRQ(USART6);
-}
-
-extern "C" void UART7_IRQHandler()
-{
-    STM32UARTBus::HandleUARTIRQ(UART7);
-}
-
-extern "C" void UART8_IRQHandler()
-{
-    STM32UARTBus::HandleUARTIRQ(UART8);
-}
-
-extern "C" void HAL_UART_RxCpltCallback(UART_HandleTypeDef* uartPort)
-{
-    STM32UARTBus::HandleReadComplete(uartPort);
-}
-
-extern "C" void HAL_UART_ErrorCallback(UART_HandleTypeDef* uartPort)
-{
-    printf("UART error: 0x%X\n", uartPort->ErrorCode);
 }

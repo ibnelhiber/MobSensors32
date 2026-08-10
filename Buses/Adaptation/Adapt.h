@@ -133,64 +133,46 @@
     typedef struct UARTSetupInfo
     {
         std::function<void()> enableUART;
-        std::function<void()> setIRQPriority;
-        std::function<void()> enableIRQ;
         uint8_t alternateFunction;
     } UARTSetupInfo;
 
     const UARTSetupInfo UARTSetupInfoOne{
         [](){ __HAL_RCC_USART1_CLK_ENABLE(); },
-        [](){ HAL_NVIC_SetPriority(USART1_IRQn, 5, 0); },
-        [](){ HAL_NVIC_EnableIRQ(USART1_IRQn); },
         GPIO_AF7_USART1
     };
 
     const UARTSetupInfo UARTSetupInfoTwo{
         [](){ __HAL_RCC_USART2_CLK_ENABLE(); },
-        [](){ HAL_NVIC_SetPriority(USART2_IRQn, 5, 0); },
-        [](){ HAL_NVIC_EnableIRQ(USART2_IRQn); },
         GPIO_AF7_USART2
     };
 
     const UARTSetupInfo UARTSetupInfoThree{
         [](){ __HAL_RCC_USART3_CLK_ENABLE(); },
-        [](){ HAL_NVIC_SetPriority(USART3_IRQn, 5, 0); },
-        [](){ HAL_NVIC_EnableIRQ(USART3_IRQn); },
         GPIO_AF7_USART3
     };
 
     const UARTSetupInfo UARTSetupInfoFour{
         [](){ __HAL_RCC_UART4_CLK_ENABLE(); },
-        [](){ HAL_NVIC_SetPriority(UART4_IRQn, 5, 0); },
-        [](){ HAL_NVIC_EnableIRQ(UART4_IRQn); },
         GPIO_AF8_UART4
     };
 
     const UARTSetupInfo UARTSetupInfoFive{
         [](){ __HAL_RCC_UART5_CLK_ENABLE(); },
-        [](){ HAL_NVIC_SetPriority(UART5_IRQn, 5, 0); },
-        [](){ HAL_NVIC_EnableIRQ(UART5_IRQn); },
         GPIO_AF8_UART5
     };
 
     const UARTSetupInfo UARTSetupInfoSix{
         [](){ __HAL_RCC_USART6_CLK_ENABLE(); },
-        [](){ HAL_NVIC_SetPriority(USART6_IRQn, 5, 0); },
-        [](){ HAL_NVIC_EnableIRQ(USART6_IRQn); },
         GPIO_AF8_USART6
     };
 
     const UARTSetupInfo UARTSetupInfoSeven{
         [](){ __HAL_RCC_UART7_CLK_ENABLE(); },
-        [](){ HAL_NVIC_SetPriority(UART7_IRQn, 5, 0); },
-        [](){ HAL_NVIC_EnableIRQ(UART7_IRQn); },
         GPIO_AF8_UART7
     };
 
     const UARTSetupInfo UARTSetupInfoEight{
         [](){ __HAL_RCC_UART8_CLK_ENABLE(); },
-        [](){ HAL_NVIC_SetPriority(UART8_IRQn, 5, 0); },
-        [](){ HAL_NVIC_EnableIRQ(UART8_IRQn); },
         GPIO_AF8_UART8
     };
 

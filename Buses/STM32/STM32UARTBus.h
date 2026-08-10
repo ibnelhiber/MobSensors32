@@ -11,10 +11,9 @@ class STM32UARTBus : public IUARTBus, public STM32Bus
 {
 
 private:
+    static std::unordered_set<USART_TypeDef*> m_usedPortInstances;
     UART_HandleTypeDef m_uartPort{};
     bool CheckPortAvailability() override;
-    TaskHandle_t m_waitingTask{nullptr};
-    volatile bool m_readComplete{false};
     
     void UARTSetup() override;
 
@@ -26,10 +25,6 @@ public:
     ~STM32UARTBus();
     bool Read(std::vector<uint8_t>& packet) override;
     bool ReadAfterCommand(std::vector<uint8_t>& packet, const std::vector<uint8_t>& command) override;
-    static void HandleUARTIRQ(USART_TypeDef* peripheralInstance);
-    static void HandleReadComplete(UART_HandleTypeDef* uartPort);
-    static std::unordered_map<USART_TypeDef*, STM32UARTBus*> m_instanceMap;
-
 };
 
 
