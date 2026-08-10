@@ -17,6 +17,7 @@ public:
     bool Read(std::vector<uint8_t>& packet);
     bool ReadAfterCommand(std::vector<uint8_t>& packet, 
     const std::vector<uint8_t>& command);
+    bool Write(const std::vector<uint8_t>& command);
 };
 
 

@@ -107,6 +107,22 @@ bool ESP32UARTBus::ReadAfterCommand(std::vector<uint8_t>& packet,
     return bytesRead == static_cast<int>(packet.size());
 }
 
+bool STM32UARTBus::Write(const std::vector<uint8_t>& command)
+{
+    int bytesWritten = uart_write_bytes(
+        m_uartPort,
+        reinterpret_cast<const char*>(command.data()),
+        command.size()
+    );
+
+    if (bytesWritten != static_cast<int>(command.size()))
+    {
+        return false;
+    }
+
+    return true;
+}
+
 
 
 gpio_num_t ESP32UARTBus::get_tx()

@@ -26,6 +26,7 @@ public:
     bool Read(std::vector<uint8_t>& packet) override;
     bool ReadAfterCommand(std::vector<uint8_t>& packet, 
     const std::vector<uint8_t>& command) override;
+    bool Write(const std::vector<uint8_t>& command);
 };
 
 

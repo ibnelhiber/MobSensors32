@@ -28,3 +28,13 @@ const std::vector<uint8_t>& command)
 
     return false;
 }
+
+bool UARTBus::Write(const std::vector<uint8_t>& command)
+{
+    if(m_implementation)
+    {
+        return m_implementation->Write(command);
+    }
+
+    return false;
+}

@@ -106,9 +106,7 @@ bool STM32UARTBus::ReadAfterCommand(
     std::vector<uint8_t>& packet,
     const std::vector<uint8_t>& command)
 {
-    HAL_StatusTypeDef status;
-
-    status = HAL_UART_Transmit(
+    HAL_StatusTypeDef status = HAL_UART_Transmit(
         &m_uartPort,
         command.data(),
         static_cast<uint16_t>(command.size()),
@@ -120,6 +118,24 @@ bool STM32UARTBus::ReadAfterCommand(
     }
 
     return Read(packet);
+}
+
+bool STM32UARTBus::Write(const std::vector<uint8_t>& command)
+{
+    HAL_StatusTypeDef status = HAL_UART_Transmit(
+            &m_uartPort,
+            command.data(),
+            static_cast<uint16_t>(command.size()),
+            TIME_OUT_MS
+        );
+
+    if(status != HAL_OK)
+    {
+        printf("Failure code: %d\n", status);
+        return false;
+    }
+
+    return true;
 }
 
 
