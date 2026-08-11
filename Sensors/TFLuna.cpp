@@ -21,14 +21,6 @@ TFLuna::TFLuna(std::shared_ptr<I2CBus> bus) : Sensor(bus)
 TFLuna::TFLuna(std::unique_ptr<UARTBus> bus) : Sensor(std::move(bus))
 {
 	m_indexes = {3, 2};
-
-	
-	std::vector<uint8_t> triggerModeCommand{
-		{0x5A, 0x06, 0x03, 0x00, 0x00, 0x63}
-	};
-
-	m_uartBus->Write(triggerModeCommand);
-
 }
 
 
@@ -76,6 +68,22 @@ void TFLuna::ReadSensorUART_()
 			printf("Index %d: %d ", i, packet[i]);
 		}
 		printf("\n");
+	}
+}
+
+void TFLuna::WriteSensorI2C_(const std::vector<uint8_t>& command)
+{
+	if(m_i2cBus)
+	{
+		m_i2cBus->Write(m_i2cAddress, command);
+	}
+}
+
+void TFLuna::WriteSensorUART_(const std::vector<uint8_t>& command)
+{
+	if(m_uartBus)
+	{
+		m_uartBus->Write(command);
 	}
 }
 

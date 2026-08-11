@@ -3,13 +3,15 @@
 
 Sensor::Sensor(std::shared_ptr<I2CBus> bus) : 
     m_i2cBus{bus},
-    ReadSensor{[this](){ReadSensorI2C_();}}
+    ReadSensor{[this](){ReadSensorI2C_();}},
+    WriteSensor{[this](const std::vector<uint8_t>& command){WriteSensorI2C_(command);}}
 {
 }
 
 Sensor::Sensor(std::unique_ptr<UARTBus> bus) :
     m_uartBus{std::move(bus)},
-    ReadSensor{[this](){ReadSensorUART_();}}
+    ReadSensor{[this](){ReadSensorUART_();}}, 
+    WriteSensor{[this](const std::vector<uint8_t>& command){WriteSensorUART_(command);}}
 {
 }
 

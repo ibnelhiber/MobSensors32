@@ -37,15 +37,17 @@ protected:
 
     virtual void ReadSensorI2C_() = 0;
     virtual void ReadSensorUART_() = 0;
+    virtual void WriteSensorI2C_(const std::vector<uint8_t>& command) = 0;
+    virtual void WriteSensorUART_(const std::vector<uint8_t>& command) = 0;
 
 public:
     explicit Sensor(std::shared_ptr<I2CBus> bus);
     explicit Sensor(std::unique_ptr<UARTBus> bus);
     ~Sensor();
     std::function<void(void)> ReadSensor;
+    std::function<void(const std::vector<uint8_t>& command)> WriteSensor;
     void PollSensor(const int delayPeriod);
     void StopPolling();
-    double get_distance();
 };
 
 
