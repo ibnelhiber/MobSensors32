@@ -18,12 +18,6 @@ Sensor::~Sensor()
 	StopPolling();
 }
 
-
-double Sensor::get_distance()
-{
-    return m_distance;
-}
-
 void Sensor::PollSensor(const int delayPeriod)
 {
 	printf("Starting to poll sensor");

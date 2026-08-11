@@ -129,6 +129,58 @@ const std::vector<uint8_t>& command)
     return err == ESP_OK;
 }
 
+bool STM32I2CBus::Write(const uint8_t address, const std::vector<uint8_t>& command)
+{
+    if (packet.empty() || command.empty())
+    {
+        return false;
+    }
+
+    i2c_cmd_handle_t cmdLink = i2c_cmd_link_create();
+
+    i2c_master_start(cmdLink);
+    i2c_master_write_byte(cmdLink, (address << 1) | I2C_MASTER_WRITE, true);
+    i2c_master_write(cmdLink, command.data(), command.size(), true);
+    i2c_master_stop(cmdLink);
+
+    esp_err_t err = i2c_master_cmd_begin(m_i2cPort, cmdLink, pdMS_TO_TICKS(100));
+    i2c_cmd_link_delete(cmdLink);
+
+    if (err != ESP_OK)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool STM32I2CBus::WriteToRegister(const uint8_t address, const int registerAddress,
+        std::vector<uint8_t>& command)
+{
+    if (packet.empty() || command.empty())
+    {
+        return false;
+    }
+
+    i2c_cmd_handle_t cmdLink = i2c_cmd_link_create();
+
+    i2c_master_start(cmdLink);
+    i2c_master_write_byte(cmdLink, (address << 1) | I2C_MASTER_WRITE, true);
+    i2c_master_write_byte(cmdLink, (registerAddress << 1) | I2C_MASTER_WRITE, true);
+    i2c_master_write(cmdLink, command.data(), command.size(), true);
+    i2c_master_stop(cmdLink);
+
+    esp_err_t err = i2c_master_cmd_begin(m_i2cPort, cmdLink, pdMS_TO_TICKS(100));
+    i2c_cmd_link_delete(cmdLink);
+
+    if (err != ESP_OK)
+    {
+        return false;
+    }
+
+    return true;
+}
+
 
 gpio_num_t ESP32I2CBus::get_sda()
 {

@@ -48,3 +48,24 @@ const std::vector<uint8_t>& command)
 
     return false;
 }
+
+bool I2CBus::Write(const uint8_t address, const std::vector<uint8_t>& command)
+{
+    if(m_implementation)
+    {
+        return m_implementation->Write(address, command);
+    }
+
+    return false;
+}
+
+bool I2CBus::WriteToRegister(const uint8_t address, const int registerAddress,
+        std::vector<uint8_t>& command)
+{
+    if(m_implementation)
+    {
+        return m_implementation->WriteToRegister(address, registerAddress, command);
+    }
+
+    return false;
+}

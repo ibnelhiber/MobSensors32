@@ -25,6 +25,9 @@ public:
     const int registerAddress) = 0;
     virtual bool ReadAfterCommand(const uint8_t address, std::vector<uint8_t>& packet, 
     const std::vector<uint8_t>& command) = 0;
+    virtual bool Write(const uint8_t address, const std::vector<uint8_t>& command) = 0;
+    virtual bool WriteToRegister(const uint8_t address, const int registerAddress,
+        std::vector<uint8_t>& command) = 0;
 };
 
 #endif

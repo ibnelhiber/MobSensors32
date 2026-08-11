@@ -26,6 +26,9 @@ public:
     const int registerAddress) override;
     bool ReadAfterCommand(const uint8_t address, std::vector<uint8_t>& packet, 
     const std::vector<uint8_t>& command) override;
+    bool Write(const uint8_t address, const std::vector<uint8_t>& command);
+    bool WriteToRegister(const uint8_t address, const int registerAddress,
+        std::vector<uint8_t>& command);
 
 };
 

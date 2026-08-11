@@ -79,3 +79,8 @@ void TFLuna::ReadSensorUART_()
 	}
 }
 
+double TFLuna::get_distance()
+{
+    return m_distance;
+}
+

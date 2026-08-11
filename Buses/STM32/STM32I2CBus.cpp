@@ -132,6 +132,46 @@ bool STM32I2CBus::ReadAfterCommand(
 }
 
 
+bool STM32I2CBus::Write(const uint8_t address, const std::vector<uint8_t>& command)
+{
+    HAL_StatusTypeDef status = HAL_I2C_Master_Transmit(
+        &m_i2cPort,
+        static_cast<uint16_t>(address << 1),
+        const_cast<uint8_t*>(command.data()),
+        static_cast<uint16_t>(command.size()),
+        TIME_OUT_MS
+    );
+
+    if (status != HAL_OK)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool STM32I2CBus::WriteToRegister(const uint8_t address, const int registerAddress,
+        std::vector<uint8_t>& command)
+{
+    command.insert(command.begin(), registerAddress);
+    
+    HAL_StatusTypeDef status = HAL_I2C_Master_Transmit(
+        &m_i2cPort,
+        static_cast<uint16_t>(address << 1),
+        const_cast<uint8_t*>(command.data()),
+        static_cast<uint16_t>(command.size()),
+        TIME_OUT_MS
+    );
+
+    if (status != HAL_OK)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+
 GPIOPin STM32I2CBus::get_sda()
 {
     return m_pinOne;

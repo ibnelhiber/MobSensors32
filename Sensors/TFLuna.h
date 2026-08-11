@@ -16,6 +16,8 @@ private:
 public:
     explicit TFLuna(std::shared_ptr<I2CBus> bus);
     explicit TFLuna(std::unique_ptr<UARTBus> bus);
+    double get_distance();
+
 };
 
 #endif

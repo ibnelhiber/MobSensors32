@@ -21,8 +21,6 @@ protected:
 
 public:
 STM32Bus(GPIOPin pinOne, GPIOPin pinTwo);
-
-
 };
 
 
